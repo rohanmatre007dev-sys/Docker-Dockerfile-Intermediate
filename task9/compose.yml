@@ -1,0 +1,26 @@
+services:
+  backend:
+    image: node-backend
+    container_name: backend
+    deploy:
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 512M
+    ports:
+      - 4000:4000
+    networks:
+      - mern-net
+  
+  frontend:
+    depends_on:
+      - backend
+    image: node-frontend
+    container_name: frontend
+    ports:
+      - 3000:3000
+    networks:
+      - mern-net
+
+networks:
+  mern-net:

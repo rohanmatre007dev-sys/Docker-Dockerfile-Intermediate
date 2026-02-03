@@ -1,0 +1,44 @@
+# We define custom network for backend <-> frontend communication
+networks:
+  mern-net:
+
+services:
+
+  # ---------------------------------------------------
+  # Backend Service (ONLY backend gets the secret)
+  # ---------------------------------------------------
+  backend:
+    build: ./backend                # Build backend from its own Dockerfile
+    container_name: backend
+    ports:
+      - "4000:4000"                 # Expose backend to host
+    networks:
+      - mern-net
+
+    # Attach secret to backend only
+    # This will mount a FILE at /run/secrets/API_KEY
+    secrets:
+      - API_KEY
+
+  # ---------------------------------------------------
+  # Frontend Service
+  # ---------------------------------------------------
+  frontend:
+    build: ./frontend               # Build frontend from its own Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"                 # Host->container port mapping
+    networks:
+      - mern-net
+
+    # IMPORTANT:
+    # Frontend MUST NOT receive the API_KEY
+    depends_on:
+      - backend                     # Start frontend after backend
+
+# -----------------------------------------------------
+# Define secret (stored OUTSIDE the image)
+# -----------------------------------------------------
+secrets:
+  API_KEY:
+    file: ./secrets/api_key.txt     # Local file, NOT committed to git
